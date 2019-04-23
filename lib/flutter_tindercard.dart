@@ -26,7 +26,7 @@ class TinderSwapCard extends StatefulWidget {
   /// , option includes: stack orientation [orientation], number of card display in same time [stackNum]
   /// , and size control params;
   TinderSwapCard(
-      {@required CardBuilder cardBuilder,
+      {Key key, @required CardBuilder cardBuilder,
       @required int totalNum,
       AmassOrientation orientation = AmassOrientation.BOTTOM,
       int stackNum = 3,
@@ -40,7 +40,8 @@ class TinderSwapCard extends StatefulWidget {
         this._totalNum = totalNum,
         assert(stackNum > 1),
         this._stackNum = stackNum,
-        assert(maxWidth > minWidth && maxHeight > minHeight)
+        assert(maxWidth > minWidth && maxHeight > minHeight),
+        super(key: key)
 //        this._maxWidth = maxWidth,
 //        this._minWidth = minWidth,
 //        this._maxHeight = maxHeight,
@@ -151,7 +152,7 @@ class _TinderSwapCardState extends State<TinderSwapCard>
             _cardRote = frontCardAlign.x;
 
             if (widget.swipeUpdateCallback != null) {
-              widget.swipeUpdateCallback(details);
+              widget.swipeUpdateCallback(details, _currentFront + widget._stackNum-1);
             }
           });
         },
@@ -184,13 +185,13 @@ class _TinderSwapCardState extends State<TinderSwapCard>
           frontCardAlign = _cardAligns[widget._stackNum - 1];
           _cardRote = 0.0;
           if (widget.swipeCompleteCallback != null) {
-            widget.swipeCompleteCallback(CardSwipeOrientation.RECOVER);
+            widget.swipeCompleteCallback(CardSwipeOrientation.RECOVER, _currentFront + widget._stackNum-1);
           }
         } else {
           if (widget.swipeCompleteCallback != null) {
             widget.swipeCompleteCallback(frontCardAlign.x < 0
                 ? CardSwipeOrientation.LEFT
-                : CardSwipeOrientation.RIGHT);
+                : CardSwipeOrientation.RIGHT, _currentFront + widget._stackNum-1);
           }
 
           changeCardOrder();
@@ -220,10 +221,10 @@ enum CardSwipeOrientation { LEFT, RIGHT, RECOVER }
 /// swipe card to [CardSwipeOrientation.LEFT] or [CardSwipeOrientation.RIGHT]
 /// , [CardSwipeOrientation.RECOVER] means back to start.
 typedef CardSwipeCompleteCallback = void Function(
-    CardSwipeOrientation orientation);
+    CardSwipeOrientation orientation, int index);
 
 /// [DragUpdateDetails] of swiping card.
-typedef CardDragUpdateCallback = void Function(DragUpdateDetails details);
+typedef CardDragUpdateCallback = void Function(DragUpdateDetails details, int index);
 
 enum AmassOrientation { TOP, BOTTOM, LEFT, RIGHT }
 
@@ -257,3 +258,4 @@ class CardAnimation {
         new CurvedAnimation(parent: controller, curve: Curves.easeOut));
   }
 }
+
